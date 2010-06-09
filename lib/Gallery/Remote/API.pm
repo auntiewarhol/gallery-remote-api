@@ -214,7 +214,7 @@ sub _parse_constructor_args {
 	my ($self,$args) = @_;
 
 	unless (ref $args eq 'HASH') {
-		croak "Must pass arguments as a hashref; 'url' and 'version' are required at minimum";
+		croak "Must pass arguments as a hashref; 'url' required at minimum";
 	}
 
 	my %cleanargs;
@@ -473,11 +473,21 @@ Also note, you do not need to specify your Gallery2 parameters in the
 
 format. Just use the parameter name itself, we will wrap it in the g2_form[].
 
-Finally let me emphasize one point regarding parameterd from Gallery's docs
+Finally let me emphasize one point regarding parameters from Gallery's docs
 that bit me until I remembered:
 
-B<album "names" and image "names" are actually the unique identifier (an 
-integer) of the object in G2, rather than an alphanumeric name>
+	B<album "names" and image "names" are actually the unique identifier (an 
+	integer) of the object in G2, rather than an alphanumeric name>
+
+Let me add to that: these are <i>not</i> the "reference numbers" which
+are returned by, say fetch-albums, they are the ids that those reference nums
+point to. So, for example, fetch-albums returns:
+
+          'album' => { 'name' => { '6' => '116' } }
+
+'116' here is the item id which they're calling 'name', not '6'. I'm not
+sure where the '6' comes from, or if it's at all useful, except for referencing
+back to other keys in that same result hash.
 
 
 =head2 C<execute_command>
@@ -559,7 +569,8 @@ L<Gallery::Remote>
 
 Jonathan Wright  C<< <development@neuralspace.com> >>
 
-Latest development version available at L<http://github.com/mysteryte/gallery-remote-api>
+Latest development version available at 
+L<http://github.com/mysteryte/gallery-remote-api>
 
 
 =head1 LICENCE AND COPYRIGHT

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# remotegallery.pl - execute Gallery2 Remote commands via Gallery::Remote::API
+# remotegallery - execute Gallery2 Remote commands via Gallery::Remote::API
 #
 #
 
@@ -105,11 +105,11 @@ __END__
 
 =head1 TITLE
 
- gallery2_filenames
+ remotegallery
 
 =head1 SYNOPSIS
 
- gallery2_filenames --url url --version N --username myusername --password mypassword --command command
+ remotegallery --url url --version N --username myusername --password mypassword --command command
 
 =head1 DESCRIPTION
 
