@@ -1,18 +1,15 @@
-package Gallery::Remote::API::Abstract;
+package Gallery::Remote::API;
 
-use warnings;
 use strict;
+use warnings;
+
+use version 0.77; our $VERSION = qv('v0.0.1');
 
 use base qw(Class::Accessor);
 Gallery::Remote::API->mk_ro_accessors(qw(
-	url username password version
-	 _remoteurl _cookiejar _useragent
+	url username password version _remoteurl _cookiejar _useragent
 ));
 Gallery::Remote::API->mk_accessors(qw(response result));
-
-
-package Gallery::Remote::API;
-use base qw(Gallery::Remote::API::Abstract);
 
 use Carp;
 use URI;
@@ -23,9 +20,6 @@ use File::Temp;
 use Config::Properties;
 use Data::Diver qw(Dive);
 use Sub::Name;
-
-
-use version 0.77; our $VERSION = qv('v0.0.1');
 
 
 #constants
@@ -73,11 +67,13 @@ BEGIN {
 sub login {
 	my $self = shift;
 
+	croak "Must define username during object construction to login"
+		unless my $u = $self->username;
+	croak "Must define password during object construction to login"
+		unless my $p = $self->password;
+
 	return $self->execute_command('login', {
-			#we just let you try if these aren't set, so that
-			#we can lazily let the response populate the error
-			uname    => $self->username || '',
-			password => $self->password || ''
+			uname    => $u, password => $p
 	});
 }
 
@@ -135,7 +131,7 @@ sub execute_command {
 	# fake an error in the same style as those returned by the protocol
 	# throw in the response object itself in case anyone finds it useful
 	$self->result({status => 'server_error', status_text => $res->message, response => $res});
-	return undef;
+	return;
 }
 
 sub _parse_response {
@@ -149,14 +145,14 @@ sub _parse_response {
 		#want Config::Properties to deserialize it for us, but that
 		#module wants to load from a filehandle, it doesn't look like
 		#you can just pass it data. Hence...
-		my $virtualfile;
-		open(FILE, '+>', \$virtualfile)
+		my $virtualfile = '';
+		open(my $fh, '+>', \$virtualfile)
 			|| croak "Failed to open virtual file: $!";
-		print FILE $response;
-		seek(FILE,0,SEEK_SET);
+		print $fh $response;
+		seek($fh,0,SEEK_SET);
 
 		my $cp = new Config::Properties;
-		$cp->load(*FILE);
+		$cp->load($fh);
 
 		my $result = $cp->splitToTree;
 
@@ -194,7 +190,7 @@ sub _parse_response {
 			return $result 
 		};
 	}
-	return undef;
+	return;
 }
 
 
@@ -223,8 +219,8 @@ sub _parse_constructor_args {
 
 	my %cleanargs;
 	foreach (keys %$args) {
-		if ($_ eq 'url') {
-			my $u = $args->{url};
+		if (($_ eq 'url') && (my $u = $args->{url})) {
+
 			if (ref $u && $u->isa('URI')) {
 				$cleanargs{$_} = $u;
 			}
@@ -237,6 +233,7 @@ sub _parse_constructor_args {
 			}
 		}
 		elsif ($_ eq 'version') {
+			$args->{$_} ||= 2;
 			if ($args->{$_} =~ /^[12]$/) {
 				$cleanargs{$_} = $args->{$_};
 			}
@@ -252,14 +249,15 @@ sub _parse_constructor_args {
 		}
 	}
 
-	if ((my $u = $cleanargs{url}) && (my $v = $cleanargs{version})) {
+	if (my $u = $cleanargs{url}) {
+		my $v = $cleanargs{version};
 		$cleanargs{_remoteurl} = URI->new($u->canonical . ACCESSPAGE->{$v});
 		if ($v == 2) {
 			$cleanargs{_remoteurl}->query_param(g2_controller => 'remote:GalleryRemote');
 		}
 	}
 	else {
-		croak "url and version are required arguments";
+		croak "'url' to the gallery installation is a required argument";
 	}
 
 	my $cj = File::Temp->new->filename;
@@ -334,12 +332,13 @@ a hashref, are as follows:
 =item B<url> (required)
 
 The main url to your Gallery installation, e.g. "mygallerysite.com", or
-"http://mybigbadsite.com/galleries/". The 'http://' is optional.
+"http://mybigbadsite.com/galleries/". The 'http://' is optional. Can be
+passed as either a string or as a L<URI> object.
 
-=item B<version> (required)
+=item B<version>
 
 The (major) version of your Gallery installation.
-Accepted values are '1' or '2'
+Accepted values are '1' or '2'; defaults to '2'.
 
 =item B<username>
 
@@ -497,9 +496,6 @@ of the command to be executed as the first argument. Use the Gallery-native
 form of the command, e.g. "fetch-albums", not "fetch_albums".
 
 
-=back
-
-
 =head1 CONFIGURATION AND ENVIRONMENT
   
 Gallery::Remote::API requires no configuration files or environment variables.
@@ -562,6 +558,8 @@ L<Gallery::Remote>
 =head1 AUTHOR
 
 Jonathan Wright  C<< <development@neuralspace.com> >>
+
+Latest development version available at L<http://github.com/mysteryte/gallery-remote-api>
 
 
 =head1 LICENCE AND COPYRIGHT

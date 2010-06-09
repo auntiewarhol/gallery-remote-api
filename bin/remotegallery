@@ -4,16 +4,15 @@
 #
 #
 
+use strict;
 use vars qw($VERSION);
 
 $VERSION='0.01';
 
-use strict;
 use Getopt::Long;
 use Pod::Usage;
 use Data::Dumper;
 
-use lib '/home/neuralnoise/perl/Gallery-Remote-API/lib';
 use Gallery::Remote::API;
 
 my %opts;
@@ -43,12 +42,25 @@ my $gallery = Gallery::Remote::API->new({
 #login command always assumed if username & password are specified,
 #else pass the login command itself to test fail when not specified
 if (($opts{username} && $opts{password})
-		&& !($opts{command} eq 'login')) {
+		|| ($opts{command} eq 'login')) {
 
-	$gallery->login;
+	my $result = $gallery->login;
+	if ($result) {
+		print "logged in\n";
+	}
+	else {
+		$result = $gallery->result;
+		print "login failed: " . $result->{status_text} . "\n";
+	}
+	if ($opts{verbose}) {
+		print "\nresponse = \n" . $gallery->response . "\n\n";
+		print "result   = " . Dumper $result;
+	}
+	print "\n";
 }
 
-if (my $command = $opts{command}) {
+my $command = $opts{command} || '';
+if ($command && ($command ne 'login')) {
 
 	my %params;
 	if (my $p = $opts{parameters}) {
@@ -65,7 +77,7 @@ if (my $command = $opts{command}) {
 
 	&execute($gallery,$command,\%params);
 }
-else {
+elsif ($command ne 'login') {
 	print "No valid command received\n\n";
 }
 
@@ -80,7 +92,7 @@ sub execute {
 	}
 	else {
 		$result = $gallery->result;
-		print "$command failed\n";
+		print "$command failed: ". $result->{status_text} . "\n";
 	}
 	if ($opts{verbose}) {
 		print "\nresponse = \n" . $gallery->response . "\n\n";
