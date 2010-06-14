@@ -1,19 +1,34 @@
-Gallery-Remote-API version 0.0.1
+NAME
+    Gallery::Remote::API - Perl Module to access the Gallery Remote Protocol
 
-[ REPLACE THIS...
+VERSION
+    This document describes Gallery::Remote::API version 0.01.01
 
-  The README is used to introduce the module and provide instructions on
-  how to install the module, any machine dependencies it may have (for
-  example C compilers and installed libraries) and any other information
-  that should be understood before the module is installed.
+SYNOPSIS
+            use Gallery::Remote::API;
 
-  A README file is required for CPAN modules since CPAN extracts the
-  README file from a module distribution so that people browsing the
-  archive can use it get an idea of the modules uses. It is usually a
-  good idea to provide version information here so that people can
-  decide whether fixes for the module are worth downloading.
-]
+            my $gallery = new Gallery::Remote::API (
+                    url => $url, version => $ver,
+					username => $user, password => $pass
+            );
 
+            $gallery->login || die "can't log in!";
+
+            ## Then...
+
+            if (my $result = $gallery->fetch_albums) { #etc
+                    # success! $result is a hashref of returned data
+            }
+            else {
+                    # failed! But we can still get $result, to see the error
+                    my $result = $gallery->result;
+                    print "error = " . $result->status_text;
+            }
+
+DESCRIPTION
+    "Gallery" is a PHP web photo gallery package; this module allows you to
+    interact with their Remote Protocol API. It is an alternative to
+    Gallery::Remote, which does not support Gallery2.
 
 INSTALLATION
 
@@ -31,10 +46,31 @@ Alternatively, to install with Module::Build, you can use the following commands
 	./Build test
 	./Build install
 
-
 DEPENDENCIES
+    Class::Accessor
 
-None.
+    URI
+
+    URI::QueryParam
+
+    LWP::UserAgent
+
+    HTTP::Cookies
+
+    File::Temp
+
+    Config::Properties
+
+    Data::Diver
+
+    Sub::Name
+
+
+AUTHOR
+    Jonathan Wright `<mysteryte@cpan.org>'
+
+    Latest development version available at
+    http://github.com/mysteryte/gallery-remote-api
 
 
 COPYRIGHT AND LICENCE

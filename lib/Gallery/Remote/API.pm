@@ -3,7 +3,7 @@ package Gallery::Remote::API;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('v0.0.1');
+use version 0.77; our $VERSION = qv('v0.01.01');
 
 use base qw(Class::Accessor);
 Gallery::Remote::API->mk_ro_accessors(qw(
@@ -20,6 +20,7 @@ use File::Temp;
 use Config::Properties;
 use Data::Diver qw(Dive);
 use Sub::Name;
+use Scalar::Util qw(blessed);
 
 
 #constants
@@ -127,7 +128,7 @@ sub execute_command {
 		return $self->_parse_response;
 	}
 
-	carp "Server Error: ".$res->status_line."\n";
+	#carp "Server Error: ".$res->status_line."\n";
 	# fake an error in the same style as those returned by the protocol
 	# throw in the response object itself in case anyone finds it useful
 	$self->result({status => 'server_error', status_text => $res->message, response => $res});
@@ -182,7 +183,7 @@ sub _parse_response {
 			$result->{status_text} = $result->{Error} || 'unknown error';
 		}
 
-		unless ($result->{status}) {
+		unless ($result->{status}) { #success is 0, don't do on fail
 			#add/replace the security token, if present
 			if (my $newtoken = $result->{auth_token}) {
 				$self->_remoteurl->query_param(g2_authToken => $newtoken);
@@ -218,10 +219,11 @@ sub _parse_constructor_args {
 	}
 
 	my %cleanargs;
+	$cleanargs{version} ||= 2;
 	foreach (keys %$args) {
 		if (($_ eq 'url') && (my $u = $args->{url})) {
 
-			if (ref $u && $u->isa('URI')) {
+			if (ref $u && blessed $u && $u->isa('URI')) {
 				$cleanargs{$_} = $u;
 			}
 			elsif (ref $u) {
@@ -233,7 +235,6 @@ sub _parse_constructor_args {
 			}
 		}
 		elsif ($_ eq 'version') {
-			$args->{$_} ||= 2;
 			if ($args->{$_} =~ /^[12]$/) {
 				$cleanargs{$_} = $args->{$_};
 			}
@@ -276,12 +277,12 @@ __END__
 
 =head1 NAME
 
-Gallery::Remote::API - Perl Module to access the Gallery Remote Protocol
+Gallery::Remote::API - Interact with Gallery via the Gallery Remote Protocol
 
 
 =head1 VERSION
 
-This document describes Gallery::Remote::API version 0.0.1
+This document describes Gallery::Remote::API version 0.01.01
 
 
 =head1 SYNOPSIS
@@ -310,8 +311,7 @@ This document describes Gallery::Remote::API version 0.0.1
 
 "Gallery" is a PHP web photo gallery package; this module allows you to
 interact with their Remote Protocol API. It is an alternative to
-Gallery::Remote, which at this time is incomplete, and does not appear to
-support Gallery2.
+Gallery::Remote, which does not support Gallery2.
 
 
 =head1 INTERFACE - COMMON METHODS
@@ -333,7 +333,15 @@ a hashref, are as follows:
 
 The main url to your Gallery installation, e.g. "mygallerysite.com", or
 "http://mybigbadsite.com/galleries/". The 'http://' is optional. Can be
-passed as either a string or as a L<URI> object.
+passed as either a string or as a L<URI|URI> object.
+
+Note that you probably can't use the url of an embedded Gallery installation,
+you need to use the primary installation url. At least, that's my experience
+with an installation embedded under Wordpress, where I have a
+C<mygallery.mywordpresssite.com> primary installation embedded under a
+C<mywordpresssite.com/gallery> address, the remote protocol only works under
+C<mygallery.mywordpresssite.com>.
+
 
 =item B<version>
 
@@ -386,7 +394,7 @@ Returns the raw, un-deserialized response data resulting from the most
 recently performed request. Data is formatted in a Java "Properties" stream,
 exactly as returned by the Gallery Remote Protocol.
 
-I don't know why you'd want it, but it's there if you need it.
+You shouldn't normally need this, but it may be useful for debugging.
 
 =head2 C<url>
 
@@ -398,8 +406,7 @@ I don't know why you'd want it, but it's there if you need it.
 
 	my $url = $gallery->url; #etc
 
-Read-only accessors to retrieve the data you assigned on construction. Again
-I don't know why you'd ever need them, but they're there.
+Read-only accessors to retrieve the data you assigned on construction.
 
 
 =head1 INTERFACE - PROTOCOL COMMAND METHODS
@@ -506,6 +513,18 @@ of the command to be executed as the first argument. Use the Gallery-native
 form of the command, e.g. "fetch-albums", not "fetch_albums".
 
 
+=head1 COMMAND LINE UTILITY C<remotegallery>
+
+A barebones command line utility called C<remotegallery> is included with
+the distribution which will allow you to execute arbitrary commands against
+a Gallery server via this module. See the program's own docs for complete
+instructions, but general use is:
+
+	remotegallery --url I<url> --version I<N>
+		--username I<myusername> --password I<mypassword>
+		--command I<command> --parameters I<param1=val1&parm2=val2...>
+
+
 =head1 CONFIGURATION AND ENVIRONMENT
   
 Gallery::Remote::API requires no configuration files or environment variables.
@@ -513,23 +532,25 @@ Gallery::Remote::API requires no configuration files or environment variables.
 
 =head1 DEPENDENCIES
 
-L<Class::Accessor>
+L<Class::Accessor|Class::Accessor>
 
-L<URI>
+L<URI|URI>
 
-L<URI::QueryParam>
+L<URI::QueryParam|URI::QueryParam>
 
-L<LWP::UserAgent>
+L<LWP::UserAgent|LWP::UserAgent>
 
-L<HTTP::Cookies>
+L<HTTP::Cookies|HTTP::Cookies>
 
-L<File::Temp>
+L<File::Temp|File::Temp>
 
-L<Config::Properties>
+L<Config::Properties|Config::Properties>
 
-L<Data::Diver>
+L<Data::Diver|Data::Diver>
 
-L<Sub::Name>
+L<Sub::Name|Sub::Name>
+
+L<Scalar::Util|Scalar::Util>
 
 =head1 INCOMPATIBILITIES
 
@@ -563,11 +584,11 @@ Gallery Remote:Protocol - L<http://codex.gallery2.org/Gallery_Remote:Protocol>
 
 galleryadd.pl - L<http://freshmeat.net/projects/galleryadd/>
 
-L<Gallery::Remote>
+L<Gallery::Remote|Gallery::Remote>
 
 =head1 AUTHOR
 
-Jonathan Wright  C<< <development@neuralspace.com> >>
+Jonathan Wright  C<< <mysteryte@cpan.org> >>
 
 Latest development version available at 
 L<http://github.com/mysteryte/gallery-remote-api>
@@ -575,7 +596,7 @@ L<http://github.com/mysteryte/gallery-remote-api>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2010, Jonathan Wright C<< <development@neuralspace.com> >>. All rights reserved.
+Copyright (c) 2010, Jonathan Wright C<< <mysteryte@cpan.org> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

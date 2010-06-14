@@ -4,13 +4,14 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME                => 'Gallery::Remote::API',
-    AUTHOR              => 'Jonathan Wright <development@neuralspace.com>',
+    AUTHOR              => 'Jonathan Wright <mysteryte@cpan.org>',
     VERSION_FROM        => 'lib/Gallery/Remote/API.pm',
     ABSTRACT_FROM       => 'lib/Gallery/Remote/API.pm',
     PL_FILES            => {},
     EXE_FILES           => [ 'bin/remotegallery' ],
     PREREQ_PM => {
         'Test::More'      => 0,
+		'Test::Mock::LWP' => 0,
         'version'         => 0,
 		'URI'             => 0,
 		'URI::QueryParam' => 0,
@@ -20,6 +21,7 @@ WriteMakefile(
 		'Config::Properties' => 0,
 		'Data::Diver'     => 0,
 		'Sub::Name'       => 0,
+		'Scalar::Util'    => 0,
 		'Getopt::Long'    => 0,
 		'Pod::Usage'      => 0,
 		'Data::Dumper'    => 0
