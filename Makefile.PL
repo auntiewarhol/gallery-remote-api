@@ -25,7 +25,8 @@ WriteMakefile(
 		'Scalar::Util'    => 0,
 		'Getopt::Long'    => 0,
 		'Pod::Usage'      => 0,
-		'Data::Dumper'    => 0
+		'Data::Dumper'    => 0,
+		'Fcntl'           => 0
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Gallery-Remote-API-*' },

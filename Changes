@@ -11,3 +11,6 @@ Revision history for Gallery-Remote-API
        fixed missing dependency in Build/Makefile.PL
        More POD corrections
 
+0.1.4  Tue Jun 15 08:57 2010
+       fixed more dependency issues
+

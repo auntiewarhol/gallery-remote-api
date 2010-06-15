@@ -23,7 +23,8 @@ my $builder = Module::Build->new(
 		'Scalar::Util'    => 0,
 		'Getopt::Long'    => 0,
 		'Pod::Usage'      => 0,
-		'Data::Dumper'    => 0
+		'Data::Dumper'    => 0,
+		'Fcntl'           => 0
     },
     add_to_cleanup      => [ 'Gallery-Remote-API-*' ],
 );

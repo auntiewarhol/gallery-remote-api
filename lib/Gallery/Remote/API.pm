@@ -3,7 +3,7 @@ package Gallery::Remote::API;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('v0.1.3');
+use version 0.77; our $VERSION = qv('v0.1.4');
 
 use base qw(Class::Accessor);
 Gallery::Remote::API->mk_ro_accessors(qw(
@@ -21,6 +21,7 @@ use Config::Properties;
 use Data::Diver qw(Dive);
 use Sub::Name;
 use Scalar::Util qw(blessed);
+use Fcntl qw(:seek);
 
 
 #constants
