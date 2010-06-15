@@ -7,3 +7,7 @@ Revision history for Gallery-Remote-API
        POD typo and formatting corrections
        fixed minor bug in _parse_constructor_args
 
+0.1.3  Tue Jun 15 07:51 2010
+       fixed missing dependency in Build/Makefile.PL
+       More POD corrections
+

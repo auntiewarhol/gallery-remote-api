@@ -3,7 +3,7 @@ package Gallery::Remote::API;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('v0.1.2');
+use version 0.77; our $VERSION = qv('v0.1.3');
 
 use base qw(Class::Accessor);
 Gallery::Remote::API->mk_ro_accessors(qw(
@@ -304,7 +304,7 @@ This document describes Gallery::Remote::API version 0.01.01
 	else {
 		# failed! But we can still get $result, to see the error
 		my $result = $gallery->result;
-		print "error = " . $result->status_text;
+		print "error = " . $result->{status_text};
 	}
 
 =head1 DESCRIPTION
@@ -517,7 +517,8 @@ form of the command, e.g. C<fetch-albums>, not C<fetch_albums>.
 
 A barebones command line utility called C<remotegallery> is included with
 the distribution which will allow you to execute arbitrary commands against
-a Gallery server via this module. See the program's own docs for complete
+a Gallery server via this module. See the program's own docs at
+L<remotegallery|bin/remotegallery> for complete
 instructions, but general use is:
 
 	remotegallery --url url --version N

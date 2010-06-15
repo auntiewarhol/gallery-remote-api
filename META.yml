@@ -13,7 +13,7 @@ name: Gallery-Remote-API
 provides:
   Gallery::Remote::API:
     file: lib/Gallery/Remote/API.pm
-    version: v0.1.1
+    version: v0.1.2
 requires:
   Config::Properties: 0
   Data::Diver: 0
@@ -32,4 +32,4 @@ requires:
   version: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: v0.1.1
+version: v0.1.2

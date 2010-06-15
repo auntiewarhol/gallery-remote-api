@@ -13,6 +13,7 @@ WriteMakefile(
         'Test::More'      => 0,
 		'Test::Mock::LWP' => 0,
         'version'         => 0,
+		'Class::Accessor' => 0,
 		'URI'             => 0,
 		'URI::QueryParam' => 0,
 		'LWP::UserAgent'  => 0,
