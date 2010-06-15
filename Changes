@@ -1,5 +1,9 @@
 Revision history for Gallery-Remote-API
 
-0.01.01  Mon Jun 14 11:59:10 2010
+0.1.1  Mon Jun 14 11:59 2010
        Initial release.
+
+0.1.2  Tue Jun 15 06:58 2010
+       POD typo and formatting corrections
+       fixed minor bug in _parse_constructor_args
 

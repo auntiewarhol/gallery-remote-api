@@ -3,7 +3,7 @@ package Gallery::Remote::API;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('v0.01.01');
+use version 0.77; our $VERSION = qv('v0.1.2');
 
 use base qw(Class::Accessor);
 Gallery::Remote::API->mk_ro_accessors(qw(
@@ -219,7 +219,7 @@ sub _parse_constructor_args {
 	}
 
 	my %cleanargs;
-	$cleanargs{version} ||= 2;
+	$args->{version} ||= 2;
 	foreach (keys %$args) {
 		if (($_ eq 'url') && (my $u = $args->{url})) {
 
@@ -289,9 +289,9 @@ This document describes Gallery::Remote::API version 0.01.01
 	
 	use Gallery::Remote::API;
 
-	my $gallery = new Gallery::Remote::API (
+	my $gallery = new Gallery::Remote::API ({
 		url => $url, version => $ver, username => $user, password => $pass
-	);
+	});
 
 	$gallery->login || die "can't log in!";
 
@@ -320,16 +320,16 @@ These are the general-purpose methods you'll use to interact with this class.
 
 =head2 C<new>
 
-	my $gallery = new Gallery::Remote::API (
+	my $gallery = new Gallery::Remote::API ({
 		url => $url, version => $ver, username => $user, password => $pass
-	);
+	});
 
-Constructs a new Gallery::Remote::API object. Arguments, which must be passed as
-a hashref, are as follows:
+Constructs a new Gallery::Remote::API object. Arguments, which must be passed
+as a hashref, are as follows:
 
 =over 4
 
-=item B<url> (required)
+=item C<url> (required)
 
 The main url to your Gallery installation, e.g. "mygallerysite.com", or
 "http://mybigbadsite.com/galleries/". The 'http://' is optional. Can be
@@ -343,14 +343,14 @@ C<mywordpresssite.com/gallery> address, the remote protocol only works under
 C<mygallery.mywordpresssite.com>.
 
 
-=item B<version>
+=item C<version>
 
 The (major) version of your Gallery installation.
 Accepted values are '1' or '2'; defaults to '2'.
 
-=item B<username>
+=item C<username>
 
-=item B<password>
+=item C<password>
 
 The Gallery username and password under which you wish to log in
 
@@ -379,10 +379,10 @@ current list of status codes.
 In the event that we fail to contact the remote server at all, we provide
 the following, which includes the HTTP::Response object itself:
 
-	{ status => 'server_error', status_text => $http_response->status_line,
+	{ status => 'server_error', status_text => $http_response->message,
 		response => $http_response }
 
-All other data included in the $result is contextual to the request that
+All other data included in the C<$result> is contextual to the request that
 was made.
 
 
@@ -412,7 +412,7 @@ Read-only accessors to retrieve the data you assigned on construction.
 =head1 INTERFACE - PROTOCOL COMMAND METHODS
 
 These are the methods which perform specific commands correlating to their
-similarly named equivalents as specified by the Protocol.
+similarly named equivalents as specified by the protocol.
 
 =head2 C<login>
 
@@ -453,7 +453,7 @@ Usage of each is identical:
 
 	#example
 
-	my $result = $gallery->fetch_albums({ no_perms => 'yes' })) ||
+	my $result = $gallery->fetch_albums({ no_perms => 'yes' }) ||
 		print "error = " . $gallery->result->{status_text} ."\n";
 
 The parameters that can be passed to each individual method are documented
@@ -464,9 +464,9 @@ compatible, we do no checking whatsover on what parameters you send, we let
 it be between you and the remote server to determine what should or
 shouldn't work.
 
-However, you do NOT need to send the B<cmd> or B<protocol_version> parameters,
-the module will handle these two for you. If you do send B<cmd>, it will be
-ignored. However if you send B<protocol_version>, your value will be used
+However, you do NOT need to send the C<cmd> or C<protocol_version> parameters,
+the module will handle these two for you. If you do send C<cmd>, it will be
+ignored. However if you send C<protocol_version>, your value will be used
 instead of the default (protocol_version = 2.9 as of this release).
 
 I allow this because I can't find any good documentation regarding why we
@@ -478,17 +478,17 @@ Also note, you do not need to specify your Gallery2 parameters in the
 
 	g2_form[parametername]
 
-format. Just use the parameter name itself, we will wrap it in the g2_form[].
+format. Just use the parameter name itself, we will wrap it in the C<g2_form[]>.
 
 Finally let me emphasize one point regarding parameters from Gallery's docs
 that bit me until I remembered:
 
-	B<album "names" and image "names" are actually the unique identifier (an 
-	integer) of the object in G2, rather than an alphanumeric name>
+	album "names" and image "names" are actually the unique identifier (an 
+	integer) of the object in G2, rather than an alphanumeric name
 
-Let me add to that: these are <i>not</i> the "reference numbers" which
-are returned by, say fetch-albums, they are the ids that those reference nums
-point to. So, for example, fetch-albums returns:
+Let me add to that: these are I<not> the "reference numbers" which are returned
+by, say fetch-albums, they are the ids that those reference nums point to.
+So, for example, fetch-albums returns:
 
           'album' => { 'name' => { '6' => '116' } }
 
@@ -510,7 +510,7 @@ method.
 
 It works just like the methods above, except that you must pass the name
 of the command to be executed as the first argument. Use the Gallery-native
-form of the command, e.g. "fetch-albums", not "fetch_albums".
+form of the command, e.g. C<fetch-albums>, not C<fetch_albums>.
 
 
 =head1 COMMAND LINE UTILITY C<remotegallery>
@@ -520,9 +520,9 @@ the distribution which will allow you to execute arbitrary commands against
 a Gallery server via this module. See the program's own docs for complete
 instructions, but general use is:
 
-	remotegallery --url I<url> --version I<N>
-		--username I<myusername> --password I<mypassword>
-		--command I<command> --parameters I<param1=val1&parm2=val2...>
+	remotegallery --url url --version N
+		--username myusername --password mypassword
+		--command thecommand  --parameters param1=val1&parm2=val2...
 
 
 =head1 CONFIGURATION AND ENVIRONMENT
